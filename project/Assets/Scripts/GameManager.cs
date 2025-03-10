@@ -1,34 +1,4 @@
-﻿/*
- * Copyright (c) 2018 Razeware LLC
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * Notwithstanding the foregoing, you may not use, copy, modify, merge, publish, 
- * distribute, sublicense, create a derivative work, and/or sell copies of the 
- * Software in any work that is designed, intended, or marketed for pedagogical or 
- * instructional purposes related to programming, coding, application development, 
- * or information technology.  Permission for such use, copying, modification,
- * merger, publication, distribution, sublicensing, creation of derivative works, 
- * or sale is expressly withheld.
- *    
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -51,11 +21,15 @@ public class GameManager : MonoBehaviour
     public GameObject blackRook;
     public GameObject blackPawn;
 
-    private GameObject[,] pieces;
+    public GameObject[,] pieces;
+    public ChessPiece[,] enumPieces;
     private List<GameObject> movedPawns;
 
-    private Player white;
-    private Player black;
+    public GameObject[] whitePieces;
+    public GameObject[] blackPieces;
+
+    public Player white;
+    public Player black;
     public Player currentPlayer;
     public Player otherPlayer;
 
@@ -64,9 +38,12 @@ public class GameManager : MonoBehaviour
         instance = this;
     }
 
-    void Start ()
-    {
+    void Start() {
+        // Initialize pieces and players
+        whitePieces = new GameObject[] {whitePawn, whiteKnight, whiteBishop, whiteRook, whiteQueen, whiteKing};
+        blackPieces = new GameObject[] {blackPawn, blackKnight, blackBishop, blackRook, blackQueen, blackKing};
         pieces = new GameObject[8, 8];
+        enumPieces = new ChessPiece[8, 8];
         movedPawns = new List<GameObject>();
 
         white = new Player("white", true);
@@ -78,46 +55,54 @@ public class GameManager : MonoBehaviour
         InitialSetup();
     }
 
-    private void InitialSetup()
-    {
-        AddPiece(whiteRook, white, 0, 0);
-        AddPiece(whiteKnight, white, 1, 0);
-        AddPiece(whiteBishop, white, 2, 0);
-        AddPiece(whiteQueen, white, 3, 0);
-        AddPiece(whiteKing, white, 4, 0);
-        AddPiece(whiteBishop, white, 5, 0);
-        AddPiece(whiteKnight, white, 6, 0);
-        AddPiece(whiteRook, white, 7, 0);
+    private void InitialSetup() {
+        // Add all initial pieces to the board
+        AddPiece(PieceType.Rook, PieceColor.White, 0, 0);
+        AddPiece(PieceType.Knight, PieceColor.White, 1, 0);
+        AddPiece(PieceType.Bishop, PieceColor.White, 2, 0);
+        AddPiece(PieceType.Queen, PieceColor.White, 3, 0);
+        AddPiece(PieceType.King, PieceColor.White, 4, 0);
+        AddPiece(PieceType.Bishop, PieceColor.White, 5, 0);
+        AddPiece(PieceType.Knight, PieceColor.White, 6, 0);
+        AddPiece(PieceType.Rook, PieceColor.White, 7, 0);
 
-        for (int i = 0; i < 8; i++)
-        {
-            AddPiece(whitePawn, white, i, 1);
+        for (int i = 0; i < 8; i++) {
+            AddPiece(PieceType.Pawn, PieceColor.White, i, 1);
         }
 
-        AddPiece(blackRook, black, 0, 7);
-        AddPiece(blackKnight, black, 1, 7);
-        AddPiece(blackBishop, black, 2, 7);
-        AddPiece(blackQueen, black, 3, 7);
-        AddPiece(blackKing, black, 4, 7);
-        AddPiece(blackBishop, black, 5, 7);
-        AddPiece(blackKnight, black, 6, 7);
-        AddPiece(blackRook, black, 7, 7);
+        AddPiece(PieceType.Rook, PieceColor.Black, 0, 7);
+        AddPiece(PieceType.Knight, PieceColor.Black, 1, 7);
+        AddPiece(PieceType.Bishop, PieceColor.Black, 2, 7);
+        AddPiece(PieceType.Queen, PieceColor.Black, 3, 7);
+        AddPiece(PieceType.King, PieceColor.Black, 4, 7);
+        AddPiece(PieceType.Bishop, PieceColor.Black, 5, 7);
+        AddPiece(PieceType.Knight, PieceColor.Black, 6, 7);
+        AddPiece(PieceType.Rook, PieceColor.Black, 7, 7);
 
-        for (int i = 0; i < 8; i++)
-        {
-            AddPiece(blackPawn, black, i, 6);
+        for (int i = 0; i < 8; i++) {
+            AddPiece(PieceType.Pawn, PieceColor.Black, i, 6);
         }
     }
 
-    public void AddPiece(GameObject prefab, Player player, int col, int row)
-    {
+    public void AddPiece(PieceType pieceType, PieceColor pieceColor, int col, int row) {
+        // Add piece to the board
+        GameObject prefab;
+
+        if (pieceColor == PieceColor.White)
+            prefab = whitePieces[(int)pieceType - 1];
+        else
+            prefab = blackPieces[(int)pieceType - 1];
         GameObject pieceObject = board.AddPiece(prefab, col, row);
-        player.pieces.Add(pieceObject);
+        if (pieceColor == PieceColor.White)
+            white.pieces.Add(pieceObject);
+        else
+            black.pieces.Add(pieceObject);
         pieces[col, row] = pieceObject;
+        enumPieces[col, row] = new ChessPiece(pieceType, pieceColor);
     }
 
-    public void SelectPieceAtGrid(Vector2Int gridPoint)
-    {
+    public void SelectPieceAtGrid(Vector2Int gridPoint) {
+        // Select piece at a given cell on the grid
         GameObject selectedPiece = pieces[gridPoint.x, gridPoint.y];
         if (selectedPiece)
         {
@@ -125,8 +110,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public List<Vector2Int> MovesForPiece(GameObject pieceObject)
-    {
+    public List<Vector2Int> MovesForPiece(GameObject pieceObject) {
+        // Get all moves a given piece can go to
         Piece piece = pieceObject.GetComponent<Piece>();
         Vector2Int gridPoint = GridForPiece(pieceObject);
         List<Vector2Int> locations = piece.MoveLocations(gridPoint);
@@ -140,10 +125,10 @@ public class GameManager : MonoBehaviour
         return locations;
     }
 
-    public void Move(GameObject piece, Vector2Int gridPoint)
-    {
+    public void Move(GameObject piece, Vector2Int gridPoint) {
+        // Move a piece on the board
         Piece pieceComponent = piece.GetComponent<Piece>();
-        if (pieceComponent.type == PieceType.Pawn && !HasPawnMoved(piece))
+        if (pieceComponent.type == PieceKind.Pawn && !HasPawnMoved(piece))
         {
             movedPawns.Add(piece);
         }
@@ -151,23 +136,41 @@ public class GameManager : MonoBehaviour
         Vector2Int startGridPoint = GridForPiece(piece);
         pieces[startGridPoint.x, startGridPoint.y] = null;
         pieces[gridPoint.x, gridPoint.y] = piece;
+
+        enumPieces[gridPoint.x, gridPoint.y] = enumPieces[startGridPoint.x, startGridPoint.y];
+        enumPieces[startGridPoint.x, startGridPoint.y] = new ChessPiece(PieceType.None, PieceColor.None);
         board.MovePiece(piece, gridPoint);
     }
 
-    public void PawnMoved(GameObject pawn)
-    {
+    // public void Move(ChessPiece[,] pieces, ChessMove move) {
+    //     piece = pieces[move.startX, move.startY];
+    //     Piece pieceComponent = piece.GetComponent<Piece>();
+    //     if (pieceComponent.type == PieceKind.Pawn && !HasPawnMoved(piece))
+    //     {
+    //         movedPawns.Add(piece);
+    //     }
+
+    //     Vector2Int startGridPoint = GridForPiece(piece);
+    //     pieces[startGridPoint.x, startGridPoint.y] = null;
+    //     pieces[gridPoint.x, gridPoint.y] = piece;
+
+    //     enumPieces[gridPoint.x, gridPoint.y] = enumPieces[startGridPoint.x, startGridPoint.y];
+    //     enumPieces[startGridPoint.x, startGridPoint.y] = new ChessPiece[PieceType.None, PieceColor.None];
+    //     board.MovePiece(piece, gridPoint);
+    // }
+
+    public void PawnMoved(GameObject pawn) {
         movedPawns.Add(pawn);
     }
 
-    public bool HasPawnMoved(GameObject pawn)
-    {
+    public bool HasPawnMoved(GameObject pawn) {
         return movedPawns.Contains(pawn);
     }
 
-    public void CapturePieceAt(Vector2Int gridPoint)
-    {
+    public void CapturePieceAt(Vector2Int gridPoint) {
+        // Capture piece on the board
         GameObject pieceToCapture = PieceAtGrid(gridPoint);
-        if (pieceToCapture.GetComponent<Piece>().type == PieceType.King)
+        if (pieceToCapture.GetComponent<Piece>().type == PieceKind.King)
         {
             Debug.Log(currentPlayer.name + " wins!");
             Destroy(board.GetComponent<TileSelector>());
@@ -175,41 +178,35 @@ public class GameManager : MonoBehaviour
         }
         currentPlayer.capturedPieces.Add(pieceToCapture);
         pieces[gridPoint.x, gridPoint.y] = null;
+        enumPieces[gridPoint.x, gridPoint.y] = new ChessPiece(PieceType.None, PieceColor.None);
         Destroy(pieceToCapture);
     }
 
-    public void SelectPiece(GameObject piece)
-    {
+    public void SelectPiece(GameObject piece) {
         board.SelectPiece(piece);
     }
 
-    public void DeselectPiece(GameObject piece)
-    {
+    public void DeselectPiece(GameObject piece) {
         board.DeselectPiece(piece);
     }
 
-    public bool DoesPieceBelongToCurrentPlayer(GameObject piece)
-    {
+    public bool DoesPieceBelongToCurrentPlayer(GameObject piece) {
         return currentPlayer.pieces.Contains(piece);
     }
 
-    public GameObject PieceAtGrid(Vector2Int gridPoint)
-    {
-        if (gridPoint.x > 7 || gridPoint.y > 7 || gridPoint.x < 0 || gridPoint.y < 0)
-        {
+    public GameObject PieceAtGrid(Vector2Int gridPoint) {
+        // Get piece on a given point on the board
+        if (gridPoint.x > 7 || gridPoint.y > 7 || gridPoint.x < 0 || gridPoint.y < 0) {
             return null;
         }
         return pieces[gridPoint.x, gridPoint.y];
     }
 
-    public Vector2Int GridForPiece(GameObject piece)
-    {
-        for (int i = 0; i < 8; i++) 
-        {
-            for (int j = 0; j < 8; j++)
-            {
-                if (pieces[i, j] == piece)
-                {
+    public Vector2Int GridForPiece(GameObject piece) {
+        // Find location of a given piece on the board
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (pieces[i, j] == piece) {
                     return new Vector2Int(i, j);
                 }
             }
@@ -218,24 +215,23 @@ public class GameManager : MonoBehaviour
         return new Vector2Int(-1, -1);
     }
 
-    public bool FriendlyPieceAt(Vector2Int gridPoint)
-    {
+    public bool FriendlyPieceAt(Vector2Int gridPoint) {
+        // Identify if a piece can be captured
         GameObject piece = PieceAtGrid(gridPoint);
 
         if (piece == null) {
             return false;
         }
 
-        if (otherPlayer.pieces.Contains(piece))
-        {
+        if (otherPlayer.pieces.Contains(piece)) {
             return false;
         }
 
         return true;
     }
 
-    public void NextPlayer()
-    {
+    public void NextPlayer() {
+        // Switch active player
         Player tempPlayer = currentPlayer;
         currentPlayer = otherPlayer;
         otherPlayer = tempPlayer;
