@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+// Determines dimensions of square highlights
 public class Geometry
 {
     static public Vector3 PointFromGrid(Vector2Int gridPoint)

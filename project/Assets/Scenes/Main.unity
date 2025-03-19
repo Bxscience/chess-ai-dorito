@@ -233,8 +233,8 @@ GameObject:
   m_Component:
   - component: {fileID: 516697439}
   - component: {fileID: 516697438}
-  - component: {fileID: 516697440}
   - component: {fileID: 516697441}
+  - component: {fileID: 516697442}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -288,18 +288,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &516697440
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 516697437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32c8f2129fa92a744a433837d64c166c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &516697441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -327,6 +315,19 @@ MonoBehaviour:
   rook: {fileID: 0}
   queen: {fileID: 0}
   king: {fileID: 0}
+--- !u!114 &516697442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 516697437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abd700d5d7777334ab0e808a70e92ea6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  searchDepth: 3
 --- !u!850595691 &803783341
 LightingSettings:
   m_ObjectHideFlags: 0

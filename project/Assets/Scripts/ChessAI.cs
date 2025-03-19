@@ -23,6 +23,22 @@ public class ChessAI : MonoBehaviour {
         return bestMove;
     }
 
+    void Update() {
+        if (GameManager.instance.currentPlayer.name == "black") {
+            // Get list of possible moves
+            // List<ChessMove> allMoves = MoveGenerator.GenerateMoves(GameManager.instance.enumPieces, PieceColor.Black);
+
+            // Choose a random move and make it
+            // System.Random random = new System.Random();
+            // ChessMove randomMove = allMoves[random.Next(allMoves.Count)];
+            ChessMove bestMove = GetBestMove(GameManager.instance.enumPieces, PieceColor.Black);
+            if (GameManager.instance.enumPieces[bestMove.endX, bestMove.endY].color == PieceColor.White) 
+                GameManager.instance.CapturePieceAt(new Vector2Int(bestMove.endX, bestMove.endY));
+            GameManager.instance.Move(GameManager.instance.pieces[bestMove.startX, bestMove.startY], new Vector2Int(bestMove.endX, bestMove.endY));
+            GameManager.instance.NextPlayer();
+        }
+    }
+
     int Minimax(ChessPiece[,] board, int depth, int alpha, int beta, bool maximizingPlayer, PieceColor aiColor) {
         if (depth == 0) {
             return Evaluator.EvaluateBoard(board);
