@@ -26,11 +26,11 @@ public class PieceData : MonoBehaviour {
 
     void Start() {
         // Create instances of each piece for move generation
-        pawn = Instantiate(pawnPrefab).GetComponent<Piece>();
-        knight = Instantiate(knightPrefab).GetComponent<Piece>();
-        bishop = Instantiate(bishopPrefab).GetComponent<Piece>();
-        rook = Instantiate(rookPrefab).GetComponent<Piece>();
-        queen = Instantiate(queenPrefab).GetComponent<Piece>();
-        king = Instantiate(kingPrefab).GetComponent<Piece>();
+        pawn = Instantiate(pawnPrefab, gameObject.transform).GetComponent<Piece>();
+        knight = Instantiate(knightPrefab, gameObject.transform).GetComponent<Piece>();
+        bishop = Instantiate(bishopPrefab, gameObject.transform).GetComponent<Piece>();
+        rook = Instantiate(rookPrefab, gameObject.transform).GetComponent<Piece>();
+        queen = Instantiate(queenPrefab, gameObject.transform).GetComponent<Piece>();
+        king = Instantiate(kingPrefab, gameObject.transform).GetComponent<Piece>();
     }
 }

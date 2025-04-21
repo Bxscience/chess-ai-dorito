@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Knight : Piece
 {
-    public override List<Vector2Int> MoveLocations(Vector2Int gridPoint)
+    public override List<Vector2Int> MoveLocations(Vector2Int gridPoint, ChessPiece[,] board)
     {
         List<Vector2Int> locations = new List<Vector2Int>();
 

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Bishop : Piece
 {
-    public override List<Vector2Int> MoveLocations(Vector2Int gridPoint)
+    public override List<Vector2Int> MoveLocations(Vector2Int gridPoint, ChessPiece[,] board)
     {
         List<Vector2Int> locations = new List<Vector2Int>();
 
@@ -13,7 +13,7 @@ public class Bishop : Piece
             {
                 Vector2Int nextGridPoint = new Vector2Int(gridPoint.x + i * dir.x, gridPoint.y + i * dir.y);
                 locations.Add(nextGridPoint);
-                if (GameManager.instance.PieceAtGrid(nextGridPoint))
+                if (PieceAt(nextGridPoint, board))
                 {
                     break;
                 }

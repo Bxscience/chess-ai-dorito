@@ -9,6 +9,7 @@ public class Player
 
     public string name;
     public int forward;
+    public PieceColor color;
 
     public Player(string name, bool positiveZMovement)
     {
@@ -19,10 +20,12 @@ public class Player
         if (positiveZMovement == true)
         {
             this.forward = 1;
+            color = PieceColor.White;
         }
         else
         {
             this.forward = -1;
+            color = PieceColor.Black;
         }
     }
 }

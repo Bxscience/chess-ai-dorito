@@ -3,8 +3,26 @@ guid: 4caf9c284977ca34d8824dc8a0242dec
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
-  executionOrder: 0
+  defaultReferences:
+  - pawnPrefab: {fileID: 1795645163035938, guid: 455e0d5008a5e426a96c3987ea4f82b6,
+      type: 3}
+  - knightPrefab: {fileID: 1747904550817830, guid: fff2331e5321f4f49ab37c84b68ba184,
+      type: 3}
+  - bishopPrefab: {fileID: 1821828046532228, guid: 9fbaf3c5b38c8464f9df18844447db85,
+      type: 3}
+  - rookPrefab: {fileID: 1218684493727980, guid: c13dffa2e41e349c78351ec06686dc75,
+      type: 3}
+  - queenPrefab: {fileID: 1749751664417286, guid: ab99aa115f3ec44a99e16326ecb700b2,
+      type: 3}
+  - kingPrefab: {fileID: 1953080492828278, guid: 53ab43e1f4f674178b234d7ca733a67b,
+      type: 3}
+  - pawn: {instanceID: 0}
+  - knight: {instanceID: 0}
+  - bishop: {instanceID: 0}
+  - rook: {instanceID: 0}
+  - queen: {instanceID: 0}
+  - king: {instanceID: 0}
+  executionOrder: -10
   icon: {instanceID: 0}
   userData: 
   assetBundleName: 

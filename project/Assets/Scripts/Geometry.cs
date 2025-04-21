@@ -7,7 +7,7 @@ public class Geometry
     {
         float x = -3.5f + 1.0f * gridPoint.x;
         float z = -3.5f + 1.0f * gridPoint.y;
-        return new Vector3(x, 0, z);
+        return new Vector3(x, 16, z);
     }
 
     static public Vector2Int GridPoint(int col, int row)

@@ -1,11 +1,16 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
-public class ChessAI : MonoBehaviour {
-    public int searchDepth = 3; // You can experiment with different depths
+public static class ChessAI {
+    public static int searchDepth = 4; // You can experiment with different depths
+    private static ChessMove twoMovesAgo = new ChessMove(0, 0, 0, 0);
+    private static ChessMove oneMoveAgo = new ChessMove(0, 0, 0, 0);
+    private static Vector2Int[] KingDirections = {new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(0, -1),
+        new Vector2Int(-1, -1), new Vector2Int(-1, 0), new Vector2Int(-1, 1), new Vector2Int(0, 1), new Vector2Int(1, 1)};
 
     // Call this method to get the best move for the AI.
-    public ChessMove GetBestMove(ChessPiece[,] board, PieceColor aiColor) {
+    public static ChessMove GetBestMove(ChessPiece[,] board, PieceColor aiColor) {
         int bestScore = int.MinValue;
         ChessMove bestMove = null;
         List<ChessMove> moves = MoveGenerator.GenerateMoves(board, aiColor);
@@ -14,34 +19,42 @@ public class ChessAI : MonoBehaviour {
         foreach (ChessMove move in moves) {
             ChessPiece[,] boardCopy = CloneBoard(board);
             MakeMove(boardCopy, move);
-            int score = Minimax(boardCopy, searchDepth - 1, int.MinValue, int.MaxValue, false, aiColor);
-            if (score > bestScore) {
-                bestScore = score;
-                bestMove = move;
+            if (!KingsTouching(boardCopy) && !InStalemate(boardCopy, (aiColor == PieceColor.White) ? PieceColor.Black : PieceColor.White)) {
+                int score = Minimax(boardCopy, searchDepth - 1, int.MinValue, int.MaxValue, false, aiColor);
+                if ((move.startX == twoMovesAgo.startX) && (move.startY == twoMovesAgo.startY) && (move.endX == twoMovesAgo.endX) && (move.endY == twoMovesAgo.endY)) {
+                    score -= 75;
+                }
+                if (score > bestScore || (bestScore == score && score == int.MinValue && !GameManager.instance.InCheck(boardCopy, (aiColor == PieceColor.White) ? PieceColor.Black : PieceColor.White))) {
+                    bestScore = score;
+                    bestMove = move;
+                }
             }
         }
         return bestMove;
     }
 
-    void Update() {
-        if (GameManager.instance.currentPlayer.name == "black") {
-            // Get list of possible moves
-            // List<ChessMove> allMoves = MoveGenerator.GenerateMoves(GameManager.instance.enumPieces, PieceColor.Black);
+    public static void MoveAI(PieceColor aiColor) {
+        // Get list of possible moves
+        // List<ChessMove> allMoves = MoveGenerator.GenerateMoves(GameManager.instance.enumPieces, PieceColor.Black);
 
-            // Choose a random move and make it
-            // System.Random random = new System.Random();
-            // ChessMove randomMove = allMoves[random.Next(allMoves.Count)];
-            ChessMove bestMove = GetBestMove(GameManager.instance.enumPieces, PieceColor.Black);
-            if (GameManager.instance.enumPieces[bestMove.endX, bestMove.endY].color == PieceColor.White) 
-                GameManager.instance.CapturePieceAt(new Vector2Int(bestMove.endX, bestMove.endY));
-            GameManager.instance.Move(GameManager.instance.pieces[bestMove.startX, bestMove.startY], new Vector2Int(bestMove.endX, bestMove.endY));
-            GameManager.instance.NextPlayer();
-        }
+        // Choose a random move and make it
+        // System.Random random = new System.Random();
+        // ChessMove randomMove = allMoves[random.Next(allMoves.Count)];
+        PieceColor playerColor = (aiColor == PieceColor.White) ? PieceColor.Black : PieceColor.White;
+        ChessMove bestMove = GetBestMove(GameManager.instance.enumPieces, aiColor);
+
+        twoMovesAgo = oneMoveAgo;
+        oneMoveAgo = bestMove;
+
+        if (GameManager.instance.enumPieces[bestMove.endX, bestMove.endY].color == playerColor) 
+            GameManager.instance.CapturePieceAt(new Vector2Int(bestMove.endX, bestMove.endY));
+        GameManager.instance.Move(GameManager.instance.pieces[bestMove.startX, bestMove.startY], new Vector2Int(bestMove.endX, bestMove.endY));
+        GameManager.instance.NextPlayer();
     }
 
-    int Minimax(ChessPiece[,] board, int depth, int alpha, int beta, bool maximizingPlayer, PieceColor aiColor) {
+    static int Minimax(ChessPiece[,] board, int depth, int alpha, int beta, bool maximizingPlayer, PieceColor aiColor) {
         if (depth == 0) {
-            return Evaluator.EvaluateBoard(board);
+            return Evaluator.EvaluateBoard(board, aiColor);
         }
 
         PieceColor currentPlayer = maximizingPlayer ? aiColor : (aiColor == PieceColor.White ? PieceColor.Black : PieceColor.White);
@@ -81,7 +94,7 @@ public class ChessAI : MonoBehaviour {
     }
 
     // Helper method: Create a deep copy of the chess board.
-    ChessPiece[,] CloneBoard(ChessPiece[,] original) {
+    static ChessPiece[,] CloneBoard(ChessPiece[,] original) {
         ChessPiece[,] copy = new ChessPiece[8, 8];
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
@@ -92,9 +105,44 @@ public class ChessAI : MonoBehaviour {
     }
 
     // Helper method: Execute a move on the board.
-    void MakeMove(ChessPiece[,] board, ChessMove move) {
+    static void MakeMove(ChessPiece[,] board, ChessMove move) {
         ChessPiece movingPiece = board[move.startX, move.startY];
-        board[move.endX, move.endY] = movingPiece;
-        board[move.startX, move.startY] = new ChessPiece(PieceType.None, PieceColor.None);
+        if (movingPiece.type == PieceType.Pawn && (move.endY == 0 || move.endY == 7))
+            board[move.endX, move.endY] = new ChessPiece(PieceType.Queen, movingPiece.color, true);
+        else
+            board[move.endX, move.endY] = new ChessPiece(movingPiece.type, movingPiece.color, true);
+        board[move.startX, move.startY] = new ChessPiece(PieceType.None, PieceColor.None, true);
+
+        if (movingPiece.type == PieceType.King && Mathf.Abs(move.endX - move.startX) == 2) {
+            if (move.endX == 6) MakeMove(board, new ChessMove(7, move.endY, 5, move.endY));
+            else if (move.endX == 2) MakeMove(board, new ChessMove(0, move.endY, 3, move.endY));
+        }
+    }
+
+    static bool KingsTouching(ChessPiece[,] board) {
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                if (board[x, y].type == PieceType.King) {
+                    foreach (Vector2Int dir in KingDirections) {
+                        if ((x + dir.x >= 0) && (x + dir.x <= 7) && (y + dir.y >= 0) && (y + dir.y <= 7) && board[x + dir.x, y + dir.y].type == PieceType.King) return true;
+                    }
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    static bool InStalemate(ChessPiece[,] board, PieceColor playerColor) {
+        ChessPiece[,] boardCopy = CloneBoard(board);
+
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                if (board[x, y].color == playerColor && !(board[x, y].type == PieceType.Pawn) && !(board[x, y].type == PieceType.King)) {
+                    return false;
+                }
+            }
+        }
+        return !GameManager.instance.InCheck(boardCopy, (playerColor == PieceColor.White) ? PieceColor.Black : PieceColor.White) && GameManager.instance.IsCheckmate(boardCopy, playerColor);
     }
 }

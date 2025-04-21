@@ -37,6 +37,11 @@ public class MoveSelector : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 // Reference Point 2: check for valid move location
+                GameObject clickedPiece = GameManager.instance.PieceAtGrid(gridPoint);
+                if (GameManager.instance.PiecePossession(clickedPiece)) {
+                    SwitchMove(clickedPiece);
+                }
+
                 if (!moveLocations.Contains(gridPoint))
                 {
                     return;
@@ -76,6 +81,19 @@ public class MoveSelector : MonoBehaviour
         selector.EnterState();
     }
 
+    private void SwitchMove(GameObject piece)
+    {
+        this.enabled = false;
+
+        foreach (GameObject highlight in locationHighlights)
+        {
+            Destroy(highlight);
+        }
+
+        GameManager.instance.DeselectPiece(movingPiece);
+        EnterState(piece);
+    }
+
     // Spawns highlight on tile
     public void EnterState(GameObject piece)
     {
@@ -106,7 +124,7 @@ public class MoveSelector : MonoBehaviour
     }
 
     // Removes highlight on tiles
-    private void ExitState()
+    public void ExitState()
     {
         this.enabled = false;
         TileSelector selector = GetComponent<TileSelector>();
